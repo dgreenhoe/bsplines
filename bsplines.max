@@ -1,0 +1,56 @@
+/*=========================================================================* 
+ * Daniel J. Greenhoe                                                      * 
+ * Maxima script file                                                      * 
+ * To execute this script, start Maxima in a command window                * 
+ * in the subdirectory containing this file (e.g. c:\math\maxima\)         * 
+ * and then after the (%i...) prompt enter                                 * 
+ *   batchload("bspline.max")$                                             * 
+ * Data produced will be written to the file "bsplineout.txt".             *
+ * reference: http://maxima.sourceforge.net/documentation.html             * 
+ *=========================================================================*/
+/*--------------------------------------
+ * initialize script
+ *--------------------------------------*/
+reset();
+kill(all);
+load(orthopoly);
+display2d:false; /* 2-dimensional display */
+writefile("bsplineout.txt");
+/*--------------------------------------
+ * n = B-spline order parameter
+ * may be set to any value in {1,2,3,...}
+ *--------------------------------------*/
+n:2;
+print("======================================================================");
+print("Daniel J. Greenhoe");
+print("Output file for nth order B-spline Nn(x) calculation, n=",n," .");
+print("Output produced using Maxima running the script file bspline.max");
+print("======================================================================");
+Nnx:(1/n!)*sum((-1)^k*binomial(n+1,k)*(x-k)^n*unit_step(x-k),k,0,n+1);
+print("-------------------------------------------------------");
+print("            n+1     k (n+1)      n                   ");
+print(" n! Nn(x) = SUM (-1)  (   ) (x-k)  step(x-k) ,n=",n);
+print("            k=0       ( k )                          ");
+print("            ",n+1,"     k (",n+1,")     ",n);
+print(n,"! Nn(x) = SUM (-1)  (   ) (x-k)  step(x-k)");
+print("            k=0       ( k )");
+print("          = ",expand(n!*Nnx));
+print("-------------------------------------------------------");
+assume(x<=0);    print(n!,"N(x)= ",expand(n!*Nnx)," for x<=0");  forget(x<=0);
+for i:0 thru n step 1 do(
+  assume(x>i,x<(i+1)), 
+  print(n!,"N(x)= ",expand(n!*Nnx)," for ",i,"<x<",i+1),
+  tex(expand(n!*Nnx),"djg.tex"),/*write output in TeX format to file "djg.tex"*/
+  forget(x>i,x<(i+1))
+  );
+assume(x>(n+1)); print(n!,"N(x)= ",expand(n!*Nnx)," for x>",n+1); forget(x>(n+1));
+print("-------------------------------------------------------");
+print(" values at some specific points x:                     ");
+print("-------------------------------------------------------");
+y:Nnx,x=(n+1)/2;print("N(",(n+1)/2,")= ",y," (center value)");
+y:Nnx,x=(n+2)/2;print("N(",(n+2)/2,")= ",y);
+y:Nnx,x=(n+3)/2;print("N(",(n+3)/2,")= ",y);
+/*-------------------------------------
+ * close output file
+ *-------------------------------------*/
+closefile();
